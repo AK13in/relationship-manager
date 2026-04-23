@@ -9,7 +9,7 @@ from plotly.subplots import make_subplots
 # PAGE CONFIG
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Beli | Banking Relationship Manager",
+    page_title="Banking Relationship Manager",
     layout="wide",
     page_icon="🏦",
     initial_sidebar_state="expanded"
@@ -196,8 +196,8 @@ with st.sidebar:
     st.markdown(f"""
     <div style='text-align:center; padding:.5rem 0 1rem'>
       <div style='font-size:1.5rem'>🏦</div>
-      <div style='font-size:1.1rem; font-weight:800; color:{NAVY}'>Beli Analytics</div>
-      <div style='font-size:.75rem; color:{TEAL}; font-weight:500'>Banking Relationship Manager</div>
+      <div style='font-size:1.1rem; font-weight:800; color:{NAVY}'>Banking Relationship Manager</div>
+      <div style='font-size:.75rem; color:{TEAL}; font-weight:500'>Portfolio Analytics</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -272,7 +272,7 @@ avg_bal     = fdf["Balance"].mean()
 # PAGE HEADER
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(f"""
-<div class='page-title'>🏦 Beli — Banking Relationship Manager</div>
+<div class='page-title'>🏦 Banking Relationship Manager</div>
 <div class='page-sub'>
   Real-time portfolio analytics  •  Revenue at risk  •  Health scoring  •
   10,000 European bank customers  •  <span style='color:{GOLD};font-weight:600'>Banking Portfolio Analytics</span>
@@ -1037,32 +1037,55 @@ with t6:
                                 "Scatter — Balance vs Age"],
                                key="ex_t")
 
+    # Prevent groupby conflict when x_ax == col_by
+    safe_col_by = col_by if col_by != x_ax else "Exited"
+
     if chart_t == "Bar — Churn Rate":
-        g = fdf.groupby([x_ax, col_by], observed=True)["Exited"].mean().reset_index()
-        g[col_by] = g[col_by].astype(str)
-        fig_ex = px.bar(g, x=x_ax, y="Exited", color=col_by, barmode="group",
-                        text=g["Exited"].map(lambda x: f"{x:.1%}"),
-                        labels={"Exited":"Churn Rate"})
+        if x_ax == col_by:
+            g = fdf.groupby(x_ax, observed=True)["Exited"].mean().reset_index()
+            fig_ex = px.bar(g, x=x_ax, y="Exited",
+                            text=g["Exited"].map(lambda x: f"{x:.1%}"),
+                            labels={"Exited":"Churn Rate"},
+                            color_discrete_sequence=[TEAL])
+        else:
+            g = fdf.groupby([x_ax, col_by], observed=True)["Exited"].mean().reset_index()
+            g[col_by] = g[col_by].astype(str)
+            fig_ex = px.bar(g, x=x_ax, y="Exited", color=col_by, barmode="group",
+                            text=g["Exited"].map(lambda x: f"{x:.1%}"),
+                            labels={"Exited":"Churn Rate"})
         fig_ex.update_traces(textposition="outside")
         fig_ex.update_layout(yaxis_tickformat=".0%",
                              yaxis_showgrid=True, yaxis_gridcolor="#EEE")
 
     elif chart_t == "Bar — Customer Count":
-        g = fdf.groupby([x_ax, col_by], observed=True).size().reset_index(name="Count")
-        g[col_by] = g[col_by].astype(str)
-        fig_ex = px.bar(g, x=x_ax, y="Count", color=col_by, barmode="stack",
-                        text="Count")
+        if x_ax == col_by:
+            g = fdf.groupby(x_ax, observed=True).size().reset_index(name="Count")
+            fig_ex = px.bar(g, x=x_ax, y="Count", text="Count",
+                            color_discrete_sequence=[TEAL])
+        else:
+            g = fdf.groupby([x_ax, col_by], observed=True).size().reset_index(name="Count")
+            g[col_by] = g[col_by].astype(str)
+            fig_ex = px.bar(g, x=x_ax, y="Count", color=col_by, barmode="stack",
+                            text="Count")
         fig_ex.update_traces(textposition="inside")
         fig_ex.update_layout(yaxis_showgrid=True, yaxis_gridcolor="#EEE")
 
     elif chart_t == "Heatmap":
-        piv = fdf.groupby([x_ax, col_by], observed=True)["Exited"].mean().reset_index()
-        piv_w = piv.pivot(index=col_by, columns=x_ax, values="Exited").fillna(0)
-        fig_ex = px.imshow(piv_w,
-                           color_continuous_scale=[[0,LIGHT],[0.5,AMBER],[1,RED]],
-                           text_auto=".1%",
-                           labels={"color":"Churn Rate"})
-        fig_ex.update_layout(coloraxis_colorbar=dict(tickformat=".0%"))
+        if x_ax == col_by:
+            g = fdf.groupby(x_ax, observed=True)["Exited"].mean().reset_index()
+            fig_ex = px.bar(g, x=x_ax, y="Exited",
+                            text=g["Exited"].map(lambda x: f"{x:.1%}"),
+                            labels={"Exited":"Churn Rate"},
+                            color_discrete_sequence=[TEAL])
+            fig_ex.update_layout(yaxis_tickformat=".0%")
+        else:
+            piv = fdf.groupby([x_ax, col_by], observed=True)["Exited"].mean().reset_index()
+            piv_w = piv.pivot(index=col_by, columns=x_ax, values="Exited").fillna(0)
+            fig_ex = px.imshow(piv_w,
+                               color_continuous_scale=[[0,LIGHT],[0.5,AMBER],[1,RED]],
+                               text_auto=".1%",
+                               labels={"color":"Churn Rate"})
+            fig_ex.update_layout(coloraxis_colorbar=dict(tickformat=".0%"))
 
     elif chart_t == "Box — Health Score":
         fig_ex = px.box(fdf, x=x_ax, y="Health_Score",
@@ -1129,7 +1152,7 @@ st.markdown("<hr class='divider'>", unsafe_allow_html=True)
 st.markdown(f"""
 <div style='text-align:center; font-size:.75rem; color:#999; padding:.5rem 0;
             font-family:Inter,sans-serif'>
-  🏦 Beli Analytics  •  Banking Relationship Manager  •
+  🏦 Banking Relationship Manager  •
   Arvind K  |  PES University, Bengaluru  •
   <span style='color:{TEAL}'>10,000 customers</span>  •
   <span style='color:{TEAL}'>6 analytical modules</span>  •
