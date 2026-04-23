@@ -1037,19 +1037,35 @@ with t6:
                                 "Scatter — Balance vs Age"],
                                key="ex_t")
 
-    # Prevent groupby conflict when x_ax == col_by
-    safe_col_by = col_by if col_by != x_ax else "Exited"
+    # Safe groupby helper — avoids duplicate column error when x_ax == col_by
+    def safe_groupby_churn(df, x, c):
+        tmp = df[[x, c, "Exited"]].copy() if x != c else df[[x, "Exited"]].copy()
+        tmp[x] = tmp[x].astype(str)
+        if x != c:
+            tmp[c] = tmp[c].astype(str)
+            return tmp.groupby([x, c], observed=True)["Exited"].mean().reset_index()
+        else:
+            return tmp.groupby(x, observed=True)["Exited"].mean().reset_index()
+
+    def safe_groupby_count(df, x, c):
+        tmp = df[[x, c]].copy() if x != c else df[[x]].copy()
+        tmp[x] = tmp[x].astype(str)
+        if x != c:
+            tmp[c] = tmp[c].astype(str)
+            return tmp.groupby([x, c], observed=True).size().reset_index(name="Count")
+        else:
+            return tmp.groupby(x, observed=True).size().reset_index(name="Count")
+
+    same_col = (x_ax == col_by)
 
     if chart_t == "Bar — Churn Rate":
-        if x_ax == col_by:
-            g = fdf.groupby(x_ax, observed=True)["Exited"].mean().reset_index()
+        g = safe_groupby_churn(fdf, x_ax, col_by)
+        if same_col:
             fig_ex = px.bar(g, x=x_ax, y="Exited",
                             text=g["Exited"].map(lambda x: f"{x:.1%}"),
                             labels={"Exited":"Churn Rate"},
                             color_discrete_sequence=[TEAL])
         else:
-            g = fdf.groupby([x_ax, col_by], observed=True)["Exited"].mean().reset_index()
-            g[col_by] = g[col_by].astype(str)
             fig_ex = px.bar(g, x=x_ax, y="Exited", color=col_by, barmode="group",
                             text=g["Exited"].map(lambda x: f"{x:.1%}"),
                             labels={"Exited":"Churn Rate"})
@@ -1058,29 +1074,27 @@ with t6:
                              yaxis_showgrid=True, yaxis_gridcolor="#EEE")
 
     elif chart_t == "Bar — Customer Count":
-        if x_ax == col_by:
-            g = fdf.groupby(x_ax, observed=True).size().reset_index(name="Count")
+        g = safe_groupby_count(fdf, x_ax, col_by)
+        if same_col:
             fig_ex = px.bar(g, x=x_ax, y="Count", text="Count",
                             color_discrete_sequence=[TEAL])
         else:
-            g = fdf.groupby([x_ax, col_by], observed=True).size().reset_index(name="Count")
-            g[col_by] = g[col_by].astype(str)
-            fig_ex = px.bar(g, x=x_ax, y="Count", color=col_by, barmode="stack",
-                            text="Count")
+            fig_ex = px.bar(g, x=x_ax, y="Count", color=col_by,
+                            barmode="stack", text="Count")
         fig_ex.update_traces(textposition="inside")
         fig_ex.update_layout(yaxis_showgrid=True, yaxis_gridcolor="#EEE")
 
     elif chart_t == "Heatmap":
-        if x_ax == col_by:
-            g = fdf.groupby(x_ax, observed=True)["Exited"].mean().reset_index()
+        if same_col:
+            g = safe_groupby_churn(fdf, x_ax, col_by)
             fig_ex = px.bar(g, x=x_ax, y="Exited",
                             text=g["Exited"].map(lambda x: f"{x:.1%}"),
                             labels={"Exited":"Churn Rate"},
                             color_discrete_sequence=[TEAL])
             fig_ex.update_layout(yaxis_tickformat=".0%")
         else:
-            piv = fdf.groupby([x_ax, col_by], observed=True)["Exited"].mean().reset_index()
-            piv_w = piv.pivot(index=col_by, columns=x_ax, values="Exited").fillna(0)
+            g = safe_groupby_churn(fdf, x_ax, col_by)
+            piv_w = g.pivot(index=col_by, columns=x_ax, values="Exited").fillna(0)
             fig_ex = px.imshow(piv_w,
                                color_continuous_scale=[[0,LIGHT],[0.5,AMBER],[1,RED]],
                                text_auto=".1%",
@@ -1088,19 +1102,25 @@ with t6:
             fig_ex.update_layout(coloraxis_colorbar=dict(tickformat=".0%"))
 
     elif chart_t == "Box — Health Score":
-        fig_ex = px.box(fdf, x=x_ax, y="Health_Score",
-                        color=fdf[col_by].astype(str),
-                        labels={"Health_Score":"Health Score"},
+        tmp = fdf.copy()
+        tmp["_color"] = tmp[col_by].astype(str)
+        fig_ex = px.box(tmp, x=x_ax, y="Health_Score",
+                        color="_color",
+                        labels={"Health_Score":"Health Score","_color":col_by},
                         points="outliers")
-        fig_ex.update_layout(yaxis_showgrid=True, yaxis_gridcolor="#EEE")
+        fig_ex.update_layout(yaxis_showgrid=True, yaxis_gridcolor="#EEE",
+                             legend_title=col_by)
 
     else:  # Scatter
-        samp = fdf.sample(min(2000,len(fdf)), random_state=42)
+        samp = fdf.sample(min(2000,len(fdf)), random_state=42).copy()
+        samp["_color"] = samp[col_by].astype(str)
         fig_ex = px.scatter(samp, x="Age", y="Balance",
-                            color=samp[col_by].astype(str),
+                            color="_color",
                             opacity=0.5, size_max=6,
-                            labels={"Balance":"Balance (€)","Age":"Age"})
-        fig_ex.update_layout(yaxis_showgrid=True, yaxis_gridcolor="#EEE")
+                            labels={"Balance":"Balance (€)","Age":"Age",
+                                    "_color":col_by})
+        fig_ex.update_layout(yaxis_showgrid=True, yaxis_gridcolor="#EEE",
+                             legend_title=col_by)
 
     fig_ex.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=400)
     st.plotly_chart(fig_ex, use_container_width=True)
