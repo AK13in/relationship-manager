@@ -14,7 +14,6 @@ st.set_page_config(
     page_icon="🏦",
     initial_sidebar_state="expanded"
 )
-
 # ─────────────────────────────────────────────────────────────────────────────
 # DESIGN SYSTEM
 # ─────────────────────────────────────────────────────────────────────────────
@@ -197,8 +196,8 @@ with st.sidebar:
     st.markdown(f"""
     <div style='text-align:center; padding:.5rem 0 1rem'>
       <div style='font-size:1.5rem'>🏦</div>
-      <div style='font-size:1.1rem; font-weight:800; color:{NAVY}'>Relationship Manager</div>
-      <div style='font-size:.75rem; color:{TEAL}; font-weight:500'>Powered by Beli Analytics</div>
+      <div style='font-size:1.1rem; font-weight:800; color:{NAVY}'>Beli Analytics</div>
+      <div style='font-size:.75rem; color:{TEAL}; font-weight:500'>Banking Relationship Manager</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -273,10 +272,10 @@ avg_bal     = fdf["Balance"].mean()
 # PAGE HEADER
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(f"""
-<div class='page-title'>🏦 Banking Relationship Manager</div>
+<div class='page-title'>🏦 Beli — Banking Relationship Manager</div>
 <div class='page-sub'>
   Real-time portfolio analytics  •  Revenue at risk  •  Health scoring  •
-  10,000 European bank customers
+  10,000 European bank customers  •  <span style='color:{GOLD};font-weight:600'>Banking Portfolio Analytics</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -339,8 +338,7 @@ t1, t2, t3, t4, t5, t6 = st.tabs([
 CHART_H = 340
 LAYOUT  = dict(paper_bgcolor=WHITE, plot_bgcolor=WHITE,
                margin=dict(t=30, b=20, l=10, r=10),
-               font=dict(family="Inter", size=12),
-               legend=dict(bgcolor="rgba(0,0,0,0)"))
+               font=dict(family="Inter", size=12))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -363,7 +361,7 @@ with t1:
                      text=seg["Churn"].map(lambda x: f"{x:.1%}"),
                      labels={"Churn":"Churn Rate","Value_Segment":"Segment"})
         fig.update_traces(textposition="outside", textfont_size=12)
-        fig.update_layout(**LAYOUT, height=CHART_H, showlegend=False,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H, showlegend=False,
                           yaxis=dict(tickformat=".0%", showgrid=True,
                                      gridcolor="#EEE", range=[0,.35]))
         st.plotly_chart(fig, use_container_width=True)
@@ -383,7 +381,7 @@ with t1:
                      text=gen_act["Exited"].map(lambda x: f"{x:.1%}"),
                      labels={"Exited":"Churn Rate"})
         fig.update_traces(textposition="outside", textfont_size=11)
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           yaxis=dict(tickformat=".0%", showgrid=True,
                                      gridcolor="#EEE", range=[0,.5]),
                           legend_title="")
@@ -407,7 +405,7 @@ with t1:
                      text=age_ch["Churn"].map(lambda x: f"{x:.1%}"),
                      labels={"AgeBand":"Age Band","Churn":"Churn Rate"})
         fig.update_traces(textposition="outside", textfont_size=12)
-        fig.update_layout(**LAYOUT, height=CHART_H, coloraxis_showscale=False,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H, coloraxis_showscale=False,
                           yaxis=dict(tickformat=".0%", showgrid=True,
                                      gridcolor="#EEE", range=[0,.75]))
         st.plotly_chart(fig, use_container_width=True)
@@ -444,12 +442,15 @@ with t1:
         fig.add_hline(y=avg_line, line_dash="dash", line_color=RED,
                       annotation_text=f"Avg {avg_line:.1%}",
                       annotation_position="right")
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE,
+                          margin=dict(t=30, b=20, l=10, r=10),
+                          font=dict(family="Inter", size=12),
+                          height=CHART_H,
                           xaxis=dict(title="Years with Bank", dtick=1),
                           yaxis=dict(tickformat=".0%", showgrid=True,
                                      gridcolor="#EEE", title="Churn Rate"),
                           yaxis2=dict(showgrid=False, title="Customers"),
-                          legend=dict(x=0.01, y=0.99))
+                          legend=dict(x=0.01, y=0.99, bgcolor="rgba(0,0,0,0)"))
         st.plotly_chart(fig, use_container_width=True)
         st.markdown(
             "<div class='ibox ibox-info'>📌 Churn is flat across all tenure lengths — "
@@ -479,7 +480,7 @@ with t1:
             name="Customers", mode="lines+markers",
             line=dict(color=NAVY, width=2), marker=dict(size=8)
         ), secondary_y=True)
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           yaxis=dict(tickformat=".0%", showgrid=True,
                                      gridcolor="#EEE", range=[0,.35]),
                           yaxis2=dict(showgrid=False),
@@ -511,7 +512,7 @@ with t2:
                      text=geo_act["Exited"].map(lambda x: f"{x:.1%}"),
                      labels={"Exited":"Churn Rate"})
         fig.update_traces(textposition="outside", textfont_size=12)
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           yaxis=dict(tickformat=".0%", showgrid=True,
                                      gridcolor="#EEE", range=[0,.55]),
                           legend_title="")
@@ -532,7 +533,7 @@ with t2:
                      text=geo_bal["Total_Balance"].map(lambda x: f"€{x/1e6:.0f}M"),
                      labels={"Total_Balance":"Total Balance (€)"})
         fig.update_traces(textposition="outside", textfont_size=13)
-        fig.update_layout(**LAYOUT, height=CHART_H, showlegend=False,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H, showlegend=False,
                           yaxis=dict(showgrid=True, gridcolor="#EEE"))
         st.plotly_chart(fig, use_container_width=True)
 
@@ -562,7 +563,7 @@ with t2:
             aspect="auto"
         )
         fig.update_traces(textfont_size=13)
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           coloraxis_colorbar=dict(tickformat=".0%"))
         st.plotly_chart(fig, use_container_width=True)
 
@@ -581,7 +582,7 @@ with t2:
             aspect="auto"
         )
         fig.update_traces(textfont_size=13)
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           coloraxis_colorbar=dict(tickformat=".0%"))
         st.plotly_chart(fig, use_container_width=True)
         st.markdown(
@@ -672,7 +673,7 @@ with t3:
                            showarrow=False, font=dict(size=11,color=RED),
                            bgcolor="#FDEDEC", bordercolor=RED, borderwidth=1,
                            borderpad=4)
-        fig.update_layout(**LAYOUT, height=CHART_H+40, showlegend=False,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H+40, showlegend=False,
                           yaxis=dict(tickformat=".0%", range=[0,1.2],
                                      showgrid=True, gridcolor="#EEE"))
         st.plotly_chart(fig, use_container_width=True)
@@ -691,7 +692,7 @@ with t3:
                      color_discrete_map={1:TEAL,2:GREEN,3:AMBER,4:RED},
                      barmode="stack",
                      labels={"NumOfProducts":"Products","Count":"Customers"})
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           yaxis=dict(showgrid=True, gridcolor="#EEE"))
         st.plotly_chart(fig, use_container_width=True)
 
@@ -715,7 +716,7 @@ with t3:
                       line_color=RED,
                       annotation_text=f"Avg {fdf['Exited'].mean():.1%}",
                       annotation_position="right")
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           yaxis=dict(tickformat=".0%", range=[0,1.15],
                                      showgrid=True, gridcolor="#EEE"))
         st.plotly_chart(fig, use_container_width=True)
@@ -775,7 +776,7 @@ with t4:
             name="Churn Rate", mode="lines+markers",
             line=dict(color=NAVY, width=2.5), marker=dict(size=10)
         ), secondary_y=True)
-        fig.update_layout(**LAYOUT, height=CHART_H,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H,
                           yaxis=dict(showgrid=True, gridcolor="#EEE",
                                      title="Balance (€)"),
                           yaxis2=dict(tickformat=".0%", showgrid=False,
@@ -794,7 +795,7 @@ with t4:
                      },
                      labels={"Value_Segment":"Segment","Balance":"Balance (€)"},
                      points="outliers")
-        fig.update_layout(**LAYOUT, height=CHART_H, showlegend=False,
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=CHART_H, showlegend=False,
                           yaxis=dict(showgrid=True, gridcolor="#EEE"))
         st.plotly_chart(fig, use_container_width=True)
 
@@ -925,7 +926,7 @@ with t5:
         fig2.update_traces(textinfo="percent+label", textfont_size=12,
                            pull=[0.05 if t=="At Risk" else 0
                                  for t in tier_c["Tier"]])
-        fig2.update_layout(**LAYOUT, height=260, showlegend=False)
+        fig2.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=260, showlegend=False)
         st.plotly_chart(fig2, use_container_width=True)
 
     with c2:
@@ -945,7 +946,7 @@ with t5:
         fig.add_vline(x=75, line_dash="dash", line_color=GREEN, line_width=1.5,
                       annotation_text="Healthy threshold",
                       annotation_position="top right")
-        fig.update_layout(**LAYOUT, height=300, legend_title="",
+        fig.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=300, legend_title="",
                           yaxis=dict(showgrid=True, gridcolor="#EEE"),
                           xaxis=dict(showgrid=True, gridcolor="#EEE"))
         st.plotly_chart(fig, use_container_width=True)
@@ -962,7 +963,7 @@ with t5:
                       text=sh["Health_Score"].map(lambda x: f"{x:.0f}"),
                       labels={"Value_Segment":"Segment","Health_Score":"Avg Health"})
         fig3.update_traces(textposition="outside", textfont_size=12)
-        fig3.update_layout(**LAYOUT, height=250, showlegend=False,
+        fig3.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=250, showlegend=False,
                            yaxis=dict(range=[0,100], showgrid=True,
                                       gridcolor="#EEE"))
         st.plotly_chart(fig3, use_container_width=True)
@@ -993,7 +994,7 @@ with t5:
         mode="lines+markers",
         line=dict(color=NAVY,width=2.5), marker=dict(size=9)
     ), secondary_y=True)
-    fig_hv.update_layout(**LAYOUT, height=300,
+    fig_hv.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=300,
                           yaxis=dict(tickformat=".0%", showgrid=True,
                                      gridcolor="#EEE", range=[0,.45]),
                           yaxis2=dict(showgrid=False),
@@ -1078,7 +1079,7 @@ with t6:
                             labels={"Balance":"Balance (€)","Age":"Age"})
         fig_ex.update_layout(yaxis_showgrid=True, yaxis_gridcolor="#EEE")
 
-    fig_ex.update_layout(**LAYOUT, height=400)
+    fig_ex.update_layout(paper_bgcolor=WHITE, plot_bgcolor=WHITE, margin=dict(t=30, b=20, l=10, r=10), font=dict(family="Inter", size=12), height=400)
     st.plotly_chart(fig_ex, use_container_width=True)
 
     st.markdown("<hr class='divider'>", unsafe_allow_html=True)
@@ -1128,7 +1129,7 @@ st.markdown("<hr class='divider'>", unsafe_allow_html=True)
 st.markdown(f"""
 <div style='text-align:center; font-size:.75rem; color:#999; padding:.5rem 0;
             font-family:Inter,sans-serif'>
-  🏦 Banking Relationship Manager  •  Beli Analytics  •
+  🏦 Beli Analytics  •  Banking Relationship Manager  •
   Arvind K  |  PES University, Bengaluru  •
   <span style='color:{TEAL}'>10,000 customers</span>  •
   <span style='color:{TEAL}'>6 analytical modules</span>  •
