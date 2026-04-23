@@ -272,7 +272,7 @@ avg_bal     = fdf["Balance"].mean()
 # PAGE HEADER
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(f"""
-<div class='page-title'>🏦 Banking Relationship Manager</div>
+🏦 Banking Relationship Manager
 <div class='page-sub'>
   Real-time portfolio analytics  •  Revenue at risk  •  Health scoring  •
   10,000 European bank customers  •  <span style='color:{GOLD};font-weight:600'>Banking Portfolio Analytics</span>
@@ -1027,7 +1027,7 @@ with t6:
                              key="ex_x")
     with ex2:
         col_by = st.selectbox("Colour by",
-                              ["Exited","IsActiveMember","Gender",
+                              ["IsActiveMember","Gender",
                                "Value_Segment","NumOfProducts","Geography"],
                               key="ex_c")
     with ex3:
